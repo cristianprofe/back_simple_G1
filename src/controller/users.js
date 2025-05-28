@@ -17,9 +17,9 @@ export const listarProductos = (req, res) => {
   const uderId = req.user.sub;
   console.log(uderId);
   const productos = [
-    { nombre: "coca", precio: "2500", desc: "retornable" },
-    { nombre: "asd", precio: "asd", desc: "asd" },
-    { nombre: "asd", precio: "asd", desc: "ads" },
+    { id: 1, nombre: "coca", precio: "2500", desc: "retornable" },
+    { id: 2, nombre: "asd", precio: "asd", desc: "asd" },
+    { id: 3, nombre: "asd", precio: "asd", desc: "ads" },
   ];
   res.json(productos);
 };
