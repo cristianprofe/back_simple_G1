@@ -1,69 +1,35 @@
-import { connect } from "../databases";
-import jwt from "jsonwebtoken";
-const secret = process.env.SECRET_KEY;
+import { pool } from "../databases";
+import { hashPassword } from "../security/verify";
 
-export const logIn = async (req, res) => {
-  try {
-    const { user: sub, username } = req.body;
-    const payload = { sub: sub, username: username };
-    const token = generateToken(payload);
-    res.header("auth", token).json({ message: "todo ok", token: token });
-  } catch (error) {
-    return res.status(400).json({ error: error.message });
-  }
-};
-
-export const listarProductos = (req, res) => {
-  const uderId = req.user.sub;
-  console.log(uderId);
-  const productos = [
-    { id: 1, nombre: "coca", precio: "2500", desc: "retornable" },
-    { id: 2, nombre: "asd", precio: "asd", desc: "asd" },
-    { id: 3, nombre: "asd", precio: "asd", desc: "ads" },
-  ];
-  res.json(productos);
-};
-
-//crear usuarios desde el sigup
+//crear usuarios
 export const createUsers = async (req, res) => {
+  //desenpaquetar lo del frontend
+  const { nombre, mail, password, apellido, is_profe, dni } = req.body;
+
   try {
-    const { nombre, dni } = req.body;
-    const cnn = await connect();
+    const hashedPassword = hashPassword(password);
+    //tarea uno validad lo que viene del frontend
+    //agregar despues la validacion de email
+    const query =
+      "INSERT INTO usuarios (nombre, apellido, mail, contrasena, is_profe, dni) VALUES (?,?,?,?,?,?)";
+    const valores = [nombre, apellido, mail, hashedPassword, is_profe, dni];
 
-    const [insert] = await cnn.query(
-      "INSERT INTO alumno (nombre, dni) values (?,?)",
-      [nombre, dni]
-    );
+    //en la consulta de query viene dos valos
+    const [row] = await pool.query(query, valores);
 
-    console.log(insert);
+    if (row.affectedRows === 1)
+      return res
+        .status(201)
+        .json({ success: true, message: "usuario creado con exito" });
 
-    if (insert.affectedRows === 1) {
-      return res.status(200).json({ message: "todo ok" });
-    } else {
-      return res.status(500).json({ message: "no ok" });
-    }
-  } catch (error) {}
-};
-
-const generateToken = (payload) => {
-  try {
-    return jwt.sign(payload, secret, { expiresIn: "5m" });
+    return res
+      .status(400)
+      .json({ success: false, message: "no se creo el usuario" });
   } catch (error) {
-    return error;
+    console.log("error al crear usuario", error);
+    return res.status(400).json({ error: error });
   }
 };
 
-export const auth = (req, res, next) => {
-  const token = req.headers["auth"];
-  if (!token) return res.send("no hay token");
-
-  jwt.verify(token, secret, (error, user) => {
-    if (error) {
-      res.send("token invalido");
-    } else {
-      console.log(user);
-      req.user = user;
-      next();
-    }
-  });
-};
+//funcion la el login !!
+//envar el token hacie el front

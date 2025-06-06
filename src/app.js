@@ -8,7 +8,8 @@ import { options } from "./swaggerOptions";
 
 const spec = swaggerJSDoc(options);
 
-import rutas from "./router/users";
+import usuarios from "./router/users";
+import materias from "./router/materias";
 
 const app = express();
 
@@ -17,7 +18,8 @@ app.use(morgan("dev"));
 app.use(express.json());
 
 //Rutas
-app.use(rutas);
+app.use("/users", usuarios);
+app.use("/materias", materias);
 
 //documentacion
 app.use("/docs", swaggerUI.serve, swaggerUI.setup(spec));

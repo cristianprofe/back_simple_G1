@@ -1,36 +1,16 @@
 //archivo para manejar las rutas de usuarios
-
 import { Router } from "express";
-import {
-  createUsers,
-  logIn,
-  publico,
-  privado,
-  getToken,
-  auth,
-  listarProductos,
-} from "../controller/users";
+import { createUsers } from "../controller/users";
 
 //objeto para manejo de url
 const routerUsers = Router();
 
-//Enpoint para loguear usuario
 /**
  * @swagger
- * /user/login:
+ * /user/:
  *  post:
- *      sumary: loguear usuario
+ *      sumary: crar un usuario
  */
-routerUsers.post("/user/login", logIn);
-
-/**
- * @swagger
- * /usersp:
- *  post:
- *      sumary: crea usuarios
- */
-routerUsers.post("/user/usersp", createUsers);
-
-routerUsers.get("/products/getAll", auth, listarProductos);
+routerUsers.post("/", createUsers);
 
 export default routerUsers;
